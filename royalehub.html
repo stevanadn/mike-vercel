@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royale Hub - Cartoon Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: { sans: ['Rubik', 'sans-serif'], clash: ['"Lilita One"', 'cursive'] },
+                extend: {
+                    colors: { 'cr-blue': '#3b82f6', 'dark-bg': '#121a2b' },
+                    animation: { 'slide-up': 'slideUp 0.5s ease-out forwards', 'bounce-in': 'bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)' },
+                    keyframes: { 
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        bounceIn: { '0%': { transform: 'scale(0.8)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            background-color: #121a2b; 
+            background-image: radial-gradient(circle at center, rgba(59, 130, 246, 0.2), rgba(18, 26, 43, 0.9)), url('https://wallpapers.com/images/hd/clash-royale-background-1920-x-1080-360378z4y25q233j.jpg');
+            background-size: cover; background-attachment: fixed; background-blend-mode: overlay;
+            color: #fff;
+        }
+        h1, h2, h3, .nav-btn, #auth-title, .font-clash { font-family: 'Lilita One', cursive !important; letter-spacing: 0.05em; }
+        h1, h2 { -webkit-text-stroke: 1.5px black; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); }
+        h3 { -webkit-text-stroke: 0.8px black; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
+
+        /* PANEL KARTUN */
+        .cartoon-panel { 
+            background: #1e293b; border: 4px solid #334155; 
+            box-shadow: 0 8px 0px #0f172a, 0 10px 20px rgba(0,0,0,0.4); border-radius: 1.5rem;
+        }
+        /* KARTU 3D */
+        .cartoon-card { 
+            background: #243045; border: 3px solid #374763; 
+            box-shadow: 0 5px 0px #111827; border-radius: 1rem; transition: all 0.1s;
+        }
+        .cartoon-card:hover { transform: translateY(-3px); background: #2a3a5a; border-color: #3b82f6; box-shadow: 0 8px 0px #111827, 0 0 15px rgba(59, 130, 246, 0.4); }
+        .cartoon-card:active { transform: translateY(2px) !important; box-shadow: 0 2px 0px #111827 !important; }
+
+        input, select { border-width: 3px !important; font-weight: 700 !important; }
+        button { font-family: 'Lilita One', cursive !important; letter-spacing: 0.05em; text-shadow: 1px 1px 0px rgba(0,0,0,0.5); }
+        
+        .badge-modern { padding: 6px 12px; border-radius: 10px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px; border-bottom: 3px solid rgba(0,0,0,0.2); font-family: 'Rubik', sans-serif; }
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 6px; border: 2px solid #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 6px; border: 2px solid #1e293b; }
+    </style>
+</head>
+<body class="overflow-x-hidden min-h-screen flex flex-col font-sans">
+
+    <div id="toast" class="fixed top-24 right-5 z-[80] bg-blue-600 text-white px-6 py-3 rounded-xl shadow-2xl transform translate-x-full transition-transform duration-300 flex items-center gap-3 border-b-4 border-blue-800">
+        <i class="fas fa-check-circle text-2xl drop-shadow-md"></i><div><h4 class="font-black text-lg">Berhasil!</h4><p class="text-xs text-blue-100 font-bold">Data disalin.</p></div>
+    </div>
+
+    <div id="deck-modal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 hidden transition-opacity duration-300 opacity-0 backdrop-blur-md" onclick="closeDeckModal()">
+        <div class="cartoon-panel p-6 rounded-[2rem] w-full max-w-3xl m-4 relative transform scale-95 transition-all duration-300 animate-bounce-in bg-[#1e293b]" onclick="event.stopPropagation()">
+            <div class="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
+                <div>
+                    <h3 id="dm-title" class="text-4xl font-clash text-white text-stroke tracking-wide drop-shadow-lg">Deck Name</h3>
+                    <div class="flex gap-2 mt-2">
+                        <span id="dm-type" class="bg-blue-600 border-b-4 border-blue-800 text-white px-3 py-1 rounded-lg text-xs font-black uppercase shadow-lg">Type</span>
+                        <span id="dm-elixir" class="bg-purple-600 border-b-4 border-purple-800 text-white px-3 py-1 rounded-lg text-xs font-black uppercase shadow-lg">3.0</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="copyDeckFromModal()" class="bg-blue-500 border-b-4 border-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg text-sm hover:bg-blue-400 active:translate-y-1 active:border-b-0 transition">SALIN</button>
+                    <button onclick="closeDeckModal()" class="bg-red-500 border-b-4 border-red-700 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:bg-red-400 active:translate-y-1 active:border-b-0 transition"><i class="fas fa-times text-xl"></i></button>
+                </div>
+            </div>
+            <div id="dm-cards" class="flex flex-wrap justify-center gap-2 mb-8 bg-[#0f172a] p-4 rounded-2xl border-2 border-[#334155] shadow-inner"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div><h4 class="text-white font-clash text-xl mb-1 text-stroke-sm">STRATEGI</h4><p id="dm-desc" class="text-slate-300 text-sm font-bold leading-relaxed">...</p></div>
+                    <div><h4 class="text-white font-clash text-xl mb-1 text-stroke-sm">TIPS PRO</h4><ul id="dm-tips" class="list-disc list-inside text-slate-300 text-sm font-bold space-y-1"></ul></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-[#0f172a]/50 p-4 rounded-2xl border-2 border-[#334155]"><h4 class="text-green-400 font-clash text-sm uppercase mb-2">KUAT MELAWAN</h4><div id="dm-strong" class="flex flex-wrap gap-2"></div></div>
+                    <div class="bg-[#0f172a]/50 p-4 rounded-2xl border-2 border-[#334155]"><h4 class="text-red-400 font-clash text-sm uppercase mb-2">LEMAH MELAWAN</h4><div id="dm-weak" class="flex flex-wrap gap-2"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="card-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 hidden transition-opacity duration-300 opacity-0 backdrop-blur-md" onclick="closeCardModal()">
+        <div class="cartoon-panel p-0 rounded-[2rem] w-full max-w-sm m-4 relative transform scale-95 transition-all duration-300 overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+            <div class="h-36 bg-[url('https://i.pinimg.com/originals/1c/1c/94/1c1c9447472395350325377507323526.jpg')] bg-cover relative border-b-4 border-[#0f172a]">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] to-transparent"></div>
+                <button onclick="closeCardModal()" class="absolute top-4 right-4 bg-red-500 hover:bg-red-400 border-b-4 border-red-700 text-white w-10 h-10 rounded-xl flex items-center justify-center transition shadow-lg active:translate-y-1 active:border-b-0"><i class="fas fa-times text-xl drop-shadow"></i></button>
+            </div>
+            <div class="px-6 pb-8 -mt-24 relative flex flex-col items-center">
+                <div class="relative group">
+                    <div class="absolute inset-0 bg-blue-500/30 blur-3xl rounded-full group-hover:bg-yellow-400/30 transition scale-110"></div>
+                    <img id="modal-card-img" src="" class="w-48 h-auto object-contain relative z-10 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] transform -rotate-3 transition hover:rotate-0 duration-300">
+                    <div class="absolute bottom-0 right-0 bg-purple-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-black border-4 border-[#0f172a] shadow-xl z-20 text-2xl" id="modal-card-elixir">0</div>
+                </div>
+                <h3 id="modal-card-name" class="text-3xl font-black text-white mt-6 text-center tracking-wide uppercase drop-shadow-xl">Card Name</h3>
+                <div class="flex gap-2 mt-3 text-xs font-bold text-white">
+                    <span id="modal-card-rarity" class="bg-slate-700 px-4 py-1.5 rounded-lg border-b-2 border-slate-900 uppercase">Common</span>
+                    <span id="modal-card-type" class="bg-slate-700 px-4 py-1.5 rounded-lg border-b-2 border-slate-900 uppercase">Troop</span>
+                </div>
+                <div id="modal-card-tags" class="flex flex-wrap justify-center gap-2 mt-5 w-full"></div>
+                <div class="mt-6 w-full bg-slate-900/50 p-5 rounded-2xl border-2 border-[#334155] text-center relative overflow-hidden">
+                    <p class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Ditemukan di</p>
+                    <p id="modal-card-arena" class="text-yellow-400 font-black text-xl relative z-10 drop-shadow">Training Camp</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-page" class="fixed inset-0 z-40 flex items-center justify-center transition-opacity duration-500">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+        <div class="cartoon-panel p-8 rounded-[2.5rem] w-full max-w-md text-center relative z-10 shadow-[0_0_60px_rgba(59,130,246,0.3)] animate-bounce-in">
+            <div class="w-24 h-24 bg-gradient-to-b from-yellow-400 to-orange-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg border-b-4 border-orange-800 transform -rotate-6"><i class="fas fa-crown text-5xl text-white drop-shadow-md"></i></div>
+            <h1 id="auth-title" class="text-5xl font-black text-white mb-2 tracking-wider drop-shadow-xl">Royale Hub</h1>
+            <p id="auth-subtitle" class="text-slate-400 font-bold text-sm mb-8 uppercase tracking-widest">Platform Analisis Deck Modern</p>
+            <div id="auth-msg" class="hidden mb-6 p-4 rounded-xl text-sm font-bold bg-red-500/20 border-2 border-red-500 text-red-200 flex items-center gap-3 shadow-inner"><i class="fas fa-exclamation-circle text-xl"></i> <span id="auth-msg-text">Error</span></div>
+            <div id="auth-forms" class="space-y-4 text-left px-2">
+                <div class="relative"><i class="fas fa-user absolute left-4 top-4 text-slate-500 font-bold"></i><input type="text" id="username" class="w-full bg-[#0f172a] border-4 border-[#334155] rounded-xl p-4 pl-12 text-white font-bold focus:border-blue-500 outline-none transition shadow-inner" placeholder="Username..."></div>
+                <div class="relative"><i class="fas fa-lock absolute left-4 top-4 text-slate-500 font-bold"></i><input type="password" id="password" class="w-full bg-[#0f172a] border-4 border-[#334155] rounded-xl p-4 pl-12 text-white font-bold focus:border-blue-500 outline-none transition shadow-inner" placeholder="Password..."></div>
+                <button id="btn-submit" onclick="handleAuthAction()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border-b-4 border-blue-800 text-white font-black text-xl p-4 rounded-xl transition shadow-lg mt-6 transform active:scale-95 active:border-b-0 tracking-wide">MASUK SEKARANG</button>
+            </div>
+            <div class="mt-8 pt-6 border-t-2 border-slate-700/50"><button onclick="toggleAuthMode()" id="toggle-btn" class="text-sm font-bold text-slate-400 hover:text-white transition uppercase">Belum punya akun? <span class="text-blue-400 font-black underline decoration-2 underline-offset-4">Daftar</span></button></div>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden min-h-screen flex flex-col">
+        <nav class="sticky top-0 z-30 cartoon-panel rounded-none border-t-0 border-x-0 px-6 h-24 flex items-center justify-between shadow-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg border-b-4 border-blue-800 transform rotate-3"><i class="fas fa-crown text-white text-xl drop-shadow"></i></div>
+                <span class="text-3xl font-black text-white tracking-wide hidden sm:block drop-shadow-lg">Royale<span class="text-blue-400">Hub</span></span>
+            </div>
+            <div class="flex bg-[#0f172a] p-2 rounded-2xl border-2 border-[#334155] shadow-inner gap-1">
+                <button onclick="showTab('decks')" class="nav-btn px-4 py-2 rounded-xl text-xs font-black text-white bg-blue-600 border-b-4 border-blue-800 shadow-lg transform active:translate-y-1 active:border-b-0 transition-all" data-target="decks">DECKS</button>
+                <button onclick="showTab('cards')" class="nav-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white border-b-4 border-transparent hover:border-slate-600 transition-all" data-target="cards">KARTU</button>
+                <button onclick="showTab('ai')" class="nav-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white border-b-4 border-transparent hover:border-slate-600 transition-all hidden sm:block" data-target="ai">AI</button>
+                <button onclick="showTab('spy')" class="nav-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white border-b-4 border-transparent hover:border-slate-600 transition-all" data-target="spy">SPY</button>
+                <button onclick="showTab('rank')" class="nav-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white border-b-4 border-transparent hover:border-slate-600 transition-all" data-target="rank">RANK</button>
+            </div>
+            <button onclick="location.reload()" class="w-12 h-12 rounded-xl bg-red-500 hover:bg-red-400 border-b-4 border-red-700 text-white flex items-center justify-center transition shadow-lg active:translate-y-1 active:border-b-0"><i class="fas fa-power-off text-xl drop-shadow"></i></button>
+        </nav>
+
+        <main class="p-6 md:p-10 max-w-7xl mx-auto w-full flex-1">
+            <div id="tab-decks" class="tab-content animate-slide-up">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <aside class="w-full lg:w-72 cartoon-panel p-6 h-fit sticky top-28">
+                        <h3 class="font-black text-2xl text-yellow-400 mb-6 flex items-center gap-2 drop-shadow-md"><i class="fas fa-filter"></i> Filter Deck</h3>
+                        <div class="space-y-6">
+                            <div><label class="text-xs font-black text-slate-400 uppercase mb-2 block ml-1">Cari Nama</label><input oninput="renderDecks()" id="filter-deck-name" type="text" placeholder="Hog, Golem..." class="w-full bg-[#0f172a] border-4 border-[#334155] rounded-xl p-4 text-white font-bold focus:border-blue-500 outline-none shadow-inner"></div>
+                            <div><div class="flex justify-between text-xs font-black text-slate-400 mb-2 uppercase ml-1"><span>MAX ELIXIR</span><span id="elixir-display" class="text-blue-400 bg-[#0f172a] px-3 py-1 rounded-lg border-2 border-[#334155] font-bold">5.0</span></div><input oninput="updateElixir(this.value); renderDecks()" id="filter-deck-elixir" type="range" min="2.0" max="5.0" step="0.1" value="5.0" class="w-full h-4 bg-[#0f172a] rounded-full appearance-none cursor-pointer border-2 border-[#334155] accent-blue-500"></div>
+                        </div>
+                    </aside>
+                    <div class="flex-1">
+                        <header class="mb-8 bg-blue-600/20 p-8 rounded-[2.5rem] border-4 border-blue-500/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl relative overflow-hidden">
+                             <div class="absolute inset-0 bg-[url('https://cdn.royaleapi.com/static/img/arena/arena-13.png')] bg-cover opacity-20 mix-blend-overlay"></div>
+                            <div class="relative z-10"><h2 class="text-5xl font-black text-white mb-2 tracking-tight drop-shadow-xl">Meta Decks</h2><p class="text-blue-200 font-bold text-sm uppercase tracking-wider">Koleksi 20 Deck Terbaik Musim Ini.</p></div>
+                            <div class="relative z-10 bg-blue-500 text-white px-6 py-3 rounded-2xl font-black shadow-lg border-b-4 border-blue-700 text-2xl rotate-3 transform hover:rotate-0 transition">S TIER</div>
+                        </header>
+                        <div id="decks-container" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-cards" class="tab-content hidden animate-slide-up">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+                    <div><h2 class="text-5xl font-black text-white tracking-tight drop-shadow-xl">Database</h2><p class="text-slate-400 font-bold mt-2 text-sm uppercase tracking-wider bg-[#1e293b] px-4 py-2 rounded-xl border-2 border-[#334155] inline-block shadow-sm"><span id="total-cards-label" class="text-green-400 font-black text-lg">0</span> KARTU TERSEDIA</p></div>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto cartoon-panel p-3 rounded-2xl shadow-lg">
+                        <input oninput="renderCards()" id="search-card" type="text" placeholder="Cari kartu..." class="w-full sm:w-56 bg-[#0f172a] border-2 border-[#334155] rounded-xl p-3 text-white font-bold focus:border-blue-500 outline-none shadow-inner">
+                        <select onchange="renderCards()" id="filter-card-rarity" class="bg-[#0f172a] text-white px-4 py-3 rounded-xl font-bold border-2 border-[#334155] cursor-pointer outline-none uppercase shadow-inner"><option value="all">Semua Rarity</option><option value="common">Common</option><option value="rare">Rare</option><option value="epic">Epic</option><option value="legendary">Legendary</option><option value="champion">Champion</option></select>
+                    </div>
+                </div>
+                <div id="cards-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 gap-5"></div>
+            </div>
+
+            <div id="tab-spy" class="tab-content hidden animate-slide-up">
+                <div class="max-w-3xl mx-auto mt-10">
+                    <div class="cartoon-panel p-0 text-center relative overflow-hidden shadow-2xl">
+                        <div class="bg-[url('https://i.pinimg.com/736x/2b/96/31/2b963133333333333333333333333333.jpg')] bg-cover bg-center h-44 relative border-b-4 border-[#0f172a]">
+                            <div class="absolute inset-0 bg-blue-900/50 backdrop-blur-[2px]"></div>
+                            <div class="absolute -bottom-8 left-0 right-0 flex justify-center px-4">
+                                <div class="flex gap-3 w-full max-w-md cartoon-panel p-3 rounded-[2rem] shadow-xl relative z-10 bg-[#1e293b]">
+                                    <input id="spy-tag" type="text" placeholder="#TAG PEMAIN" class="flex-1 bg-[#0f172a] border-4 border-[#334155] rounded-2xl px-6 py-3 text-white font-black uppercase tracking-widest focus:border-blue-500 outline-none transition text-center shadow-inner text-lg">
+                                    <button onclick="doSpy()" class="bg-green-500 hover:bg-green-400 border-b-4 border-green-700 text-white w-16 rounded-2xl font-bold shadow-lg flex items-center justify-center active:translate-y-1 active:border-b-0 transition"><i class="fas fa-search text-2xl drop-shadow"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="spy-res" class="mt-14 p-8 hidden text-left animate-slide-up relative z-0"></div>
+                        <div id="spy-empty" class="p-10 pt-20 text-center text-slate-500"><i class="fas fa-user-secret text-8xl mb-6 opacity-50 drop-shadow-lg"></i><p class="font-black text-xl uppercase tracking-widest opacity-70">Masukkan Tag Pemain</p><p class="text-sm font-bold opacity-50 mt-2">(Contoh: #2PQV8)</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-ai" class="tab-content hidden animate-slide-up text-center">
+                <h2 class="text-5xl font-black text-white mb-4 drop-shadow-xl">AI Deck Advisor</h2>
+                <div class="max-w-5xl mx-auto mt-8">
+                    <div class="cartoon-panel p-8 mb-10 relative overflow-hidden shadow-xl">
+                        <div class="flex justify-between items-center mb-8 px-2"><span class="text-white font-black tracking-wide text-xl">DECK SLOT (<span id="ai-count" class="text-yellow-400">0</span>/8)</span><button onclick="resetAI()" class="bg-red-500 border-b-4 border-red-700 text-white px-4 py-2 rounded-xl text-xs font-black uppercase shadow hover:bg-red-400 active:translate-y-1 active:border-b-0 transition">RESET</button></div>
+                        <div id="ai-slots" class="flex flex-wrap justify-center gap-4 min-h-[100px] p-4 bg-[#0f172a]/50 rounded-3xl border-2 border-[#334155] shadow-inner"></div>
+                        <div class="mt-8 border-t-4 border-[#0f172a] pt-8"><button id="ai-btn" onclick="analyzeDeck()" class="bg-[#334155] border-b-4 border-[#1e293b] text-slate-500 px-12 py-5 rounded-[2rem] font-black text-2xl uppercase tracking-widest transition-all cursor-not-allowed w-full md:w-auto shadow-lg" disabled><i class="fas fa-lock mr-3"></i> KUNCI DECK</button></div>
+                    </div>
+                    <div id="ai-result" class="hidden cartoon-panel border-purple-900 p-8 text-left mb-10 shadow-2xl bg-gradient-to-br from-[#1e293b] to-purple-900/30 relative overflow-hidden animate-bounce-in"><div class="absolute inset-0 bg-[url('https://cdn.royaleapi.com/static/img/arena/arena-11.png')] bg-cover opacity-10 mix-blend-overlay"></div><div class="grid md:grid-cols-2 gap-8 relative z-10"><div class="space-y-5"><div class="bg-green-900/50 p-6 rounded-3xl border-l-8 border-green-500 shadow-lg"><p class="text-sm font-black text-green-400 uppercase mb-2 tracking-wider">KEKUATAN</p><p class="text-white font-bold text-xl" id="ai-strength">...</p></div><div class="bg-red-900/50 p-6 rounded-3xl border-l-8 border-red-500 shadow-lg"><p class="text-sm font-black text-red-400 uppercase mb-2 tracking-wider">KELEMAHAN</p><p class="text-white font-bold text-xl" id="ai-weakness">...</p></div></div><div class="bg-[#0f172a]/80 p-8 rounded-[2.5rem] border-4 border-[#334155] flex flex-col justify-center text-center shadow-[0_10px_0_#0f172a] transform rotate-1"><p class="text-yellow-400 font-black text-3xl italic leading-relaxed drop-shadow-md" id="ai-advice">"..."</p></div></div></div>
+                    <div class="cartoon-panel p-8 text-left relative z-10 shadow-xl">
+                        <input oninput="renderAIPicker()" id="ai-card-search" type="text" placeholder="Cari kartu untuk deck..." class="w-full bg-[#0f172a] border-4 border-[#334155] rounded-2xl p-4 text-white font-bold mb-6 uppercase shadow-inner outline-none focus:border-blue-500 transition">
+                        <div id="ai-picker-grid" class="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 gap-3 h-96 overflow-y-auto pr-4 custom-scrollbar bg-[#0f172a]/50 p-4 rounded-3xl border-2 border-[#334155] shadow-inner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-rank" class="tab-content hidden animate-slide-up">
+                <div class="max-w-5xl mx-auto">
+                    <div class="text-center mb-12"><h2 class="text-6xl font-black text-white mb-4 drop-shadow-xl">TOP GLOBAL</h2><p class="text-blue-200 font-bold text-sm uppercase tracking-widest bg-[#1e293b] px-6 py-3 rounded-2xl border-2 border-[#334155] inline-block shadow-md">Peringkat Pemain Terbaik Dunia Musim Ini</p></div>
+                    <div class="cartoon-panel overflow-hidden shadow-2xl relative">
+                        <div class="absolute inset-0 bg-[url('https://cdn.royaleapi.com/static/img/arena/arena-1.png')] bg-cover opacity-10 mix-blend-overlay"></div>
+                        <table class="w-full text-left relative z-10"><thead class="bg-[#0f172a] text-slate-400 text-sm uppercase font-black tracking-widest border-b-4 border-[#334155]"><tr><th class="p-6">Rank</th><th class="p-6">Player</th><th class="p-6 hidden sm:table-cell">Clan</th><th class="p-6 text-right">Trophies</th></tr></thead><tbody id="rank-body" class="divide-y-2 divide-[#334155] text-lg font-bold text-white bg-[#1e293b]/80"></tbody></table>
+                        <div id="rank-loading" class="text-center py-24"><i class="fas fa-circle-notch fa-spin text-6xl text-blue-500 drop-shadow-xl"></i></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        const MOCK_CARDS_DATA = [{ id: 26000021, name: 'Hog Rider', elixirCost: 4, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/hog-rider.png'} }, { id: 26000000, name: 'Knight', elixirCost: 3, rarity: 'common', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/knight.png'} }, { id: 26000014, name: 'Musketeer', elixirCost: 4, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/musketeer.png'} }, { id: 27000000, name: 'Cannon', elixirCost: 3, rarity: 'common', type: 'Building', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/cannon.png'} }, { id: 26000030, name: 'Ice Spirit', elixirCost: 1, rarity: 'common', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/ice-spirit.png'} }, { id: 26000010, name: 'Skeletons', elixirCost: 1, rarity: 'common', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/skeletons.png'} }, { id: 28000011, name: 'The Log', elixirCost: 2, rarity: 'legendary', type: 'Spell', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/the-log.png'} }, { id: 28000000, name: 'Fireball', elixirCost: 4, rarity: 'rare', type: 'Spell', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/fireball.png'} }, { id: 26000004, name: 'PEKKA', elixirCost: 7, rarity: 'epic', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/pekka.png'} }, { id: 26000046, name: 'Bandit', elixirCost: 3, rarity: 'legendary', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/bandit.png'} }, { id: 26000042, name: 'Electro Wizard', elixirCost: 4, rarity: 'legendary', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/electro-wizard.png'} }, { id: 26000017, name: 'Wizard', elixirCost: 5, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/wizard.png'} }, { id: 26000009, name: 'Golem', elixirCost: 8, rarity: 'epic', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/golem.png'} }, { id: 26000012, name: 'Skeleton Army', elixirCost: 3, rarity: 'epic', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/skeleton-army.png'} }, { id: 26000035, name: 'Ice Golem', elixirCost: 2, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/ice-golem.png'} }, { id: 26000049, name: 'Bats', elixirCost: 2, rarity: 'common', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/bats.png'} }, { id: 26000062, name: 'Magic Archer', elixirCost: 4, rarity: 'legendary', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/magic-archer.png'} }, { id: 26000039, name: 'Mega Minion', elixirCost: 3, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/mega-minion.png'} }, { id: 28000009, name: 'Poison', elixirCost: 4, rarity: 'epic', type: 'Spell', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/poison.png'} }, { id: 26000036, name: 'Battle Ram', elixirCost: 4, rarity: 'rare', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/battle-ram.png'} }, { id: 26000006, name: 'Balloon', elixirCost: 5, rarity: 'epic', type: 'Troop', iconUrls: {medium: 'https://cdn.royaleapi.com/static/img/cards-150/balloon.png'} }];
+        const DECK_RECIPES = [{ name: "Hog 2.6 Cycle", type: "Cycle", elixir: 2.6, ids: [26000021, 26000000, 26000014, 27000000, 26000030, 26000010, 28000011, 28000000] }, { name: "X-Bow 3.0", type: "Siege", elixir: 3.0, ids: [27000008, 26000000, 26000001, 26000030, 26000010, 27000006, 28000011, 28000000] }, { name: "Miner Wall Breakers", type: "Cycle", elixir: 2.8, ids: [26000032, 26000058, 26000062, 26000049, 27000004, 26000019, 28000011, 28000009] }, { name: "Royal Hogs EQ", type: "Cycle", elixir: 2.9, ids: [26000059, 26000010, 26000030, 26000021, 28000011, 28000014, 26000044, 27000006] }, { name: "Balloon Cycle", type: "Cycle", elixir: 2.8, ids: [26000006, 26000032, 26000035, 26000010, 26000014, 27000004, 28000015, 28000017] }, { name: "Golem Beatdown", type: "Beatdown", elixir: 4.3, ids: [26000009, 26000064, 26000039, 26000049, 26000062, 26000017, 28000008, 28000012] }, { name: "LavaLoon", type: "Beatdown", elixir: 4.1, ids: [26000029, 26000006, 26000039, 26000010, 28000000, 28000008, 26000002, 26000015] }, { name: "Electro Giant", type: "Beatdown", elixir: 4.0, ids: [26000085, 28000012, 26000067, 27000006, 27000000, 26000018, 28000007, 28000006] }, { name: "Goblin Giant Sparky", type: "Beatdown", elixir: 3.9, ids: [26000060, 26000033, 26000046, 26000039, 26000038, 28000008, 28000011, 26000040] }, { name: "Giant Double Prince", type: "Beatdown", elixir: 3.5, ids: [26000003, 26000016, 26000027, 26000042, 26000039, 28000000, 28000008, 26000032] }, { name: "PEKKA Bridge Spam", type: "Control", elixir: 3.9, ids: [26000004, 26000036, 26000042, 26000046, 28000009, 28000008, 28000011, 26000039] }, { name: "Splashyard", type: "Control", elixir: 3.4, ids: [28000010, 28000009, 26000023, 26000015, 28000012, 26000000, 27000004, 28000015] }, { name: "Miner Poison", type: "Control", elixir: 3.0, ids: [26000032, 28000009, 26000042, 26000010, 26000030, 27000001, 28000011, 26000031] }, { name: "Graveyard Freeze", type: "Control", elixir: 3.6, ids: [28000010, 28000005, 27000009, 26000018, 26000025, 26000023, 28000015, 28000012] }, { name: "Royal Giant Fisher", type: "Control", elixir: 3.6, ids: [26000024, 26000061, 26000044, 26000030, 26000010, 28000000, 28000011, 26000068] }, { name: "Log Bait Classic", type: "Bait", elixir: 3.3, ids: [28000004, 26000026, 26000000, 26000030, 28000011, 26000001, 26000002, 28000008] }, { name: "Mega Knight Bait", type: "Bait", elixir: 3.3, ids: [26000055, 26000056, 26000032, 26000019, 26000049, 26000041, 28000008, 26000037] }, { name: "Mortar Bait", type: "Siege", elixir: 3.1, ids: [27000002, 26000032, 26000010, 26000049, 26000041, 26000019, 28000000, 28000011] }, { name: "Prince Rascals Bait", type: "Bait", elixir: 3.5, ids: [28000004, 26000016, 26000053, 26000026, 26000041, 28000011, 28000014, 26000038] }, { name: "LumberLoon Freeze", type: "Hybrid", elixir: 3.8, ids: [26000035, 26000006, 28000005, 26000015, 26000066, 26000018, 28000015, 28000012] }];
+        
+        // DATABASE INFO DECK
+        const DECK_INFO_DB = {
+            "Hog 2.6 Cycle": { desc: "Deck klasik rotasi super cepat. Gunakan Hog Rider untuk mencicil tower lawan sedikit demi sedikit sambil bertahan dengan Cannon dan Musketeer.", tips: ["Kiting pasukan besar pakai Ice Golem", "Aktifkan King Tower dengan Tornado/Cannon", "Jangan over-commit elixir"], strong: ["P.E.K.K.A", "Mega Knight", "Golem"], weak: ["Lava Hound", "Graveyard"] },
+            "Log Bait": { desc: "Paksa lawan menggunakan spell kecil mereka (Log/Zap) pada Princess atau Goblin Gang, lalu hukum mereka dengan Goblin Barrel.", tips: ["Selalu lindungi Princess di jembatan", "Rocket cycle jika tower lawan < 600 HP", "Jaga ritme serangan"], strong: ["Prince", "P.E.K.K.A", "Sparky"], weak: ["Triple Spell", "Splashyard"] },
+            "Golem Beatdown": { desc: "Abaikan damage kecil di awal. Kumpulkan elixir hingga 2x Elixir Time, lalu bangun serangan besar tak terhentikan di belakang Golem.", tips: ["Jangan mainkan Golem di awal jika ragu", "Korbankan tower jika perlu untuk push balik", "Simpan Tornado untuk defense"], strong: ["X-Bow", "Hog Cycle"], weak: ["P.E.K.K.A Bridge Spam", "Inferno Tower"] },
+            "default": { desc: "Deck meta yang solid. Fokus pada pertahanan yang kuat dan lakukan serangan balik (Counter Push) saat elixir lawan kosong.", tips: ["Hapalkan rotasi kartu lawan", "Jangan buang elixir sia-sia", "Main sabar"], strong: ["Mid-ladder Decks"], weak: ["Hard Counter"] }
+        };
+
+        let ALL_CARDS = [], AI_SELECTED = [], IS_REGISTER_MODE = false;
+
+        function toggleAuthMode() { IS_REGISTER_MODE = !IS_REGISTER_MODE; document.getElementById('auth-title').innerHTML = IS_REGISTER_MODE ? "Buat <span class='text-green-400'>Akun</span>" : "Royale<span class='text-blue-400'>Hub</span>"; document.getElementById('auth-subtitle').innerText = IS_REGISTER_MODE ? "Bergabung dengan Komunitas" : "Platform Analisis Deck Modern"; const btn = document.getElementById('btn-submit'); btn.innerText = IS_REGISTER_MODE ? "DAFTAR SEKARANG" : "MASUK SEKARANG"; if(IS_REGISTER_MODE) { btn.classList.remove('from-blue-600', 'to-indigo-600', 'border-blue-800'); btn.classList.add('from-green-600', 'to-emerald-600', 'border-green-800'); } else { btn.classList.remove('from-green-600', 'to-emerald-600', 'border-green-800'); btn.classList.add('from-blue-600', 'to-indigo-600', 'border-blue-800'); } document.getElementById('toggle-btn').innerHTML = IS_REGISTER_MODE ? 'Sudah punya akun? <span class="text-blue-400 font-black underline decoration-2 underline-offset-4">MASUK</span>' : 'Belum punya akun? <span class="text-blue-400 font-black underline decoration-2 underline-offset-4">DAFTAR</span>'; document.getElementById('auth-msg').classList.add('hidden'); }
+        async function handleAuthAction() { const u=document.getElementById('username').value, p=document.getElementById('password').value, msg=document.getElementById('auth-msg'), btn=document.getElementById('btn-submit'); if(!u||!p) { document.getElementById('auth-msg-text').innerText="Isi semua data!"; msg.classList.remove('hidden'); return; } const originalText=btn.innerText; btn.innerText="MEMPROSES..."; btn.disabled=true; msg.classList.add('hidden'); try { const res = await fetch(`${API_BASE}/auth/${IS_REGISTER_MODE?'register':'login'}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({username:u, password:p}) }); const data = await res.json(); if(res.ok && data.success) { if(IS_REGISTER_MODE) { alert("Pendaftaran Berhasil! Silakan Masuk."); toggleAuthMode(); document.getElementById('username').value=u; document.getElementById('password').value=""; } else { localStorage.setItem('token', data.token); localStorage.setItem('username', data.username); document.getElementById('login-page').style.display='none'; document.getElementById('main-app').classList.remove('hidden'); initApp(); loadLeaderboard(); } } else { throw new Error(data.error || "Gagal memproses."); } } catch(e) { document.getElementById('auth-msg-text').innerText=e.message; msg.classList.remove('hidden'); } finally { btn.innerText=originalText; btn.disabled=false; } }
+
+        async function initApp() { try { const res = await fetch(`${API_BASE}/cards`); const data = await res.json(); if (data.items) ALL_CARDS = data.items; else ALL_CARDS = MOCK_CARDS_DATA; } catch (e) { console.log("Using Mock"); ALL_CARDS = MOCK_CARDS_DATA; } document.getElementById('total-cards-label').innerText = ALL_CARDS.length; renderCards(); renderDecks(); renderAIPicker(); }
+        function getCardAttributes(c) { let t=[], n=c.name.toLowerCase(), ty=(c.type||'troop').toLowerCase(); if(['building','spell'].includes(ty)) t.push({t:'Passive',c:'bg-slate-600 text-white border-slate-800'}); else if(['giant','hog','golem','hound','balloon','ram'].some(k=>n.includes(k))) t.push({t:'Building Target',c:'bg-orange-500 text-white border-orange-700'}); else t.push({t:'Any Target',c:'bg-red-500 text-white border-red-700'}); if(['wizard','valkyrie','spirit','bomber','dragon','witch','fireball','log','arrows','zap'].some(k=>n.includes(k))) t.push({t:'Area Dmg',c:'bg-purple-500 text-white border-purple-700'}); else t.push({t:'Single Dmg',c:'bg-blue-500 text-white border-blue-700'}); if(['minion','dragon','balloon','bat','hound','machine'].some(k=>n.includes(k))) t.push({t:'Air',c:'bg-sky-400 text-black border-sky-600'}); else if(ty==='troop') t.push({t:'Ground',c:'bg-stone-500 text-white border-stone-700'}); return t; }
+
+        function renderDecks() { const s=document.getElementById('filter-deck-name').value.toLowerCase(), c=document.getElementById('decks-container'); c.innerHTML=''; DECK_RECIPES.filter(d=>d.name.toLowerCase().includes(s)).forEach(d=>{ const ch=d.ids.map(id=>{ const crd=ALL_CARDS.find(x=>x.id===id)||MOCK_CARDS_DATA.find(x=>x.id===id); return `<div class="w-8 h-10 bg-[#0f172a] rounded flex items-center justify-center overflow-hidden border border-[#334155]"><img src="${crd?getCardImage(crd):''}" class="h-full w-auto object-contain"></div>`; }).join(''); c.innerHTML+=`<div onclick="openDeckModal('${d.name}')" class="cartoon-card p-5 rounded-[1.5rem] cursor-pointer group relative overflow-hidden hover:scale-[1.02] transition-transform"><div class="flex justify-between items-start mb-4"><div><h3 class="font-clash text-xl text-white group-hover:text-blue-400 transition text-stroke-sm">${d.name}</h3><span class="text-[10px] font-black bg-[#0f172a] text-slate-300 px-3 py-1 rounded-lg border-2 border-[#334155] uppercase tracking-wider">${d.type}</span></div><div class="bg-purple-900/50 border-2 border-purple-500 px-3 py-1.5 rounded-xl shadow-inner transform rotate-2"><span class="text-purple-200 font-black text-lg flex items-center gap-1 font-clash"><i class="fas fa-tint text-xs"></i> ${d.elixir}</span></div></div><div class="flex flex-wrap gap-1 justify-center bg-[#0f172a]/60 p-2 rounded-2xl border-2 border-[#334155] relative z-10 shadow-inner">${ch}</div></div>`; }); }
+        
+        // MODAL LOGIC
+        function openDeckModal(deckName) {
+            const deck = DECK_RECIPES.find(d => d.name === deckName); if (!deck) return;
+            const info = DECK_INFO_DB[deckName] || DECK_INFO_DB["default"];
+            document.getElementById('dm-title').innerText = deck.name;
+            document.getElementById('dm-type').innerText = deck.type;
+            document.getElementById('dm-elixir').innerText = "Avg " + deck.elixir;
+            document.getElementById('dm-desc').innerText = info.desc;
+            const cardsDiv = document.getElementById('dm-cards'); cardsDiv.innerHTML = '';
+            deck.ids.forEach(id => {
+                const c = ALL_CARDS.find(x => x.id === id) || MOCK_CARDS_DATA.find(x => x.id === id);
+                const img = c ? getCardImage(c) : '';
+                cardsDiv.innerHTML += `<div class="w-16 h-20 sm:w-20 sm:h-24 bg-[#1e293b] rounded-xl border-2 border-[#334155] flex items-center justify-center overflow-hidden shadow-lg transform hover:-translate-y-1 transition"><img src="${img}" class="h-full w-auto object-contain"></div>`;
+            });
+            document.getElementById('dm-tips').innerHTML = info.tips.map(t => `<li>${t}</li>`).join('');
+            const renderTags = (id, items, colorClass) => { document.getElementById(id).innerHTML = items.map(tag => `<span class="${colorClass} text-black px-3 py-1 rounded-lg text-xs font-black uppercase border-b-2 border-black/20 shadow-sm">${tag}</span>`).join(''); };
+            renderTags('dm-strong', info.strong, 'bg-green-400'); renderTags('dm-weak', info.weak, 'bg-red-400');
+            const m = document.getElementById('deck-modal'); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10);
+        }
+        function closeDeckModal() { const m = document.getElementById('deck-modal'); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
+        function copyDeckFromModal() { showToast(); }
+
+        function renderCards() { const t=document.getElementById('search-card').value.toLowerCase(), r=document.getElementById('filter-card-rarity').value, g=document.getElementById('cards-grid'); g.innerHTML=''; ALL_CARDS.filter(c=>c.name.toLowerCase().includes(t)&&(r==='all'||(c.rarity||'common').toLowerCase()===r)).slice(0,50).forEach(c=>{ const img=getCardImage(c), rr=(c.rarity||'common').toLowerCase(); let bc=rr==='legendary'?'border-cyan-500/80 shadow-[0_4px_0_#0891b2]':(rr==='epic'?'border-purple-500/80 shadow-[0_4px_0_#7c3aed]':(rr==='rare'?'border-orange-500/80 shadow-[0_4px_0_#ea580c]':'border-blue-500/80 shadow-[0_4px_0_#2563eb]')); g.innerHTML+=`<div onclick="openModal(${c.id})" class="cartoon-card p-2 rounded-2xl text-center border-4 ${bc} cursor-pointer group relative overflow-hidden active:scale-95 hover:brightness-110 bg-[#1e293b]"><span class="absolute top-1 right-1 w-7 h-7 bg-[#0f172a] rounded-lg text-sm flex items-center justify-center font-black border-2 border-[#334155] text-white z-10 shadow">${c.elixirCost}</span><div class="h-28 flex items-center justify-center mb-2 transform group-hover:scale-110 transition duration-300"><img src="${img}" class="max-h-full drop-shadow-xl" loading="lazy"></div><p class="text-[10px] font-black text-white truncate uppercase tracking-wide">${c.name}</p></div>`; }); }
+
+        async function doSpy() { const t=document.getElementById('spy-tag').value.trim().replace('#',''); if(!t)return; const rd=document.getElementById('spy-res'); rd.classList.remove('hidden'); document.getElementById('spy-empty').classList.add('hidden'); rd.innerHTML='<div class="text-center py-10"><i class="fas fa-circle-notch fa-spin text-5xl text-blue-500 drop-shadow-lg"></i></div>'; try { const res=await fetch(`${API_BASE}/player/%23${t}`); if(!res.ok)throw new Error(); const d=await res.json(), tg=d.wins+d.losses, wr=tg>0?Math.round((d.wins/tg)*100):0; let dh='<div class="flex flex-wrap justify-center gap-2 mt-4">'; if(d.currentDeck){d.currentDeck.forEach(c=>{dh+=`<div class="w-12 h-14 bg-[#0f172a] rounded-xl border-2 border-[#334155] overflow-hidden shadow-md"><img src="${getCardImage(c)}" class="h-full w-auto object-contain"></div>`;});} dh+='</div>'; rd.innerHTML=`<div class="cartoon-panel p-8 rounded-[2.5rem] border-4 border-[#334155] shadow-2xl relative overflow-hidden bg-gradient-to-br from-[#1e293b] to-blue-900/20 animate-bounce-in"><div class="absolute -top-10 -right-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div><div class="flex flex-col sm:flex-row justify-between items-center mb-8 relative z-10 gap-4 text-center sm:text-left"><div><h3 class="text-4xl font-black text-white tracking-tight drop-shadow-lg">${d.name}</h3><div class="bg-[#0f172a] px-3 py-1 rounded-lg text-xs font-black text-slate-400 inline-block mt-2 border-2 border-[#334155]">#${d.tag}</div><div class="text-sm font-black text-yellow-400 mt-2 uppercase tracking-wider flex items-center justify-center sm:justify-start gap-2"><i class="fas fa-shield-alt"></i> ${d.clan?d.clan.name:'NO CLAN'}</div></div><div class="bg-yellow-400 border-b-4 border-yellow-600 text-yellow-900 px-6 py-3 rounded-2xl text-2xl font-black shadow-lg transform rotate-3">LVL ${d.expLevel||'?'}</div></div><div class="grid grid-cols-2 gap-6 mb-8"><div class="bg-[#0f172a]/60 p-5 rounded-3xl border-2 border-[#334155] text-center shadow-inner"><span class="text-xs font-black text-slate-500 uppercase tracking-widest block mb-2">Trophies</span><span class="text-4xl font-black text-yellow-400 flex items-center justify-center gap-2 drop-shadow"><i class="fas fa-trophy text-2xl"></i> ${d.trophies}</span></div><div class="bg-[#0f172a]/60 p-5 rounded-3xl border-2 border-[#334155] text-center shadow-inner"><span class="text-xs font-black text-slate-500 uppercase tracking-widest block mb-2">Win Rate</span><span class="text-4xl font-black ${wr>=50?'text-green-400':'text-red-400'} drop-shadow">${wr}%</span></div></div><div class="bg-[#0f172a]/40 p-6 rounded-3xl border-2 border-[#334155] mb-6 shadow-inner"><p class="text-sm font-black text-white uppercase tracking-wider text-center mb-2 flex items-center justify-center gap-2"><i class="fas fa-layer-group text-blue-400"></i> Current Deck</p>${dh}</div><div class="grid grid-cols-3 gap-3 text-center text-xs font-black uppercase"><div class="bg-green-500/20 p-3 rounded-2xl text-green-400 border-2 border-green-500/40 shadow-md">WINS ${d.wins}</div><div class="bg-red-500/20 p-3 rounded-2xl text-red-400 border-2 border-red-500/40 shadow-md">LOSS ${d.losses}</div><div class="bg-blue-500/20 p-3 rounded-2xl text-blue-400 border-2 border-blue-500/40 shadow-md">3★ ${d.threeCrownWins}</div></div></div>`; } catch(e) { rd.innerHTML=`<div class="cartoon-panel p-6 bg-red-500/20 border-2 border-red-500 text-red-200 rounded-3xl text-center font-bold text-xl animate-bounce-in">PEMAIN TIDAK DITEMUKAN!</div>`; } }
+        function loadLeaderboard() { const b=document.getElementById('rank-body'), l=document.getElementById('rank-loading'), P=["Mohamed Light","Mugi","Pandora","Ardentoas","Ian77","LucasXGamer","Viiper","Anaban","Surgical Goblin","Morten"], C=["Light","Queso","Tribe","SK","Liquid","Cloud9","Nova","Fnatic","100T","SSG"]; setTimeout(()=>{ l.style.display='none'; let h=''; P.forEach((n,i)=>{ const t=9500-(i*35), cl=C[i%C.length], rc=i<3?'text-yellow-400 font-black text-2xl drop-shadow':'text-slate-400 font-bold text-lg'; h+=`<tr class="hover:bg-[#1e293b] transition"><td class="p-6 ${rc}">#${i+1}</td><td class="p-6 flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-[#1e293b] border-2 border-[#334155] flex items-center justify-center font-black text-lg shadow-md text-blue-400">${n.charAt(0)}</div><span class="font-bold text-xl">${n}</span></td><td class="p-6 hidden sm:table-cell text-slate-500 text-sm uppercase font-black tracking-wider">${cl}</td><td class="p-6 text-right text-blue-400 font-black text-2xl drop-shadow">${t} <i class="fas fa-trophy text-yellow-500 text-lg"></i></td></tr>`; }); b.innerHTML=h; }, 1000); }
+
+        function getCardImage(c) { if (c.iconUrls?.medium) return c.iconUrls.medium; const n = c.name.toLowerCase().replace(/\./g,'').replace(/\s+/g,'-'); return `https://cdn.royaleapi.com/static/img/cards-150/${n}.png`; }
+        function openModal(id) { const c=ALL_CARDS.find(x=>x.id===id)||MOCK_CARDS_DATA.find(x=>x.id===id); if(!c)return; document.getElementById('modal-card-name').innerText=c.name; document.getElementById('modal-card-elixir').innerText=c.elixirCost||'?'; document.getElementById('modal-card-rarity').innerText=c.rarity||'Common'; document.getElementById('modal-card-type').innerText=c.type||'Troop'; document.getElementById('modal-card-img').src=getCardImage(c); const t=document.getElementById('modal-card-tags'); t.innerHTML=''; getCardAttributes(c).forEach(x=>{ t.innerHTML+=`<span class="badge-modern ${x.c} border-b-2">${x.t}</span>`; }); const m=document.getElementById('card-modal'); m.classList.remove('hidden'); setTimeout(()=>{m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95')},10); }
+        function closeCardModal() { const m=document.getElementById('card-modal'); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(()=>m.classList.add('hidden'),300); }
+        function showTab(id) { document.querySelectorAll('.tab-content').forEach(e=>e.classList.add('hidden')); document.getElementById('tab-'+id).classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.dataset.target===id) b.className="nav-btn px-4 py-2 rounded-xl text-xs font-black text-white bg-blue-600 border-b-4 border-blue-800 shadow-lg transform active:translate-y-1 active:border-b-0 transition-all"; else b.className="nav-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white border-b-4 border-transparent hover:border-slate-600 transition-all"; }); }
+        function showToast() { const t=document.getElementById('toast'); t.classList.remove('translate-x-full'); setTimeout(()=>t.classList.add('translate-x-full'),3000); }
+        function updateElixir(v) { document.getElementById('elixir-display').innerText = v; }
+        
+        function renderAIPicker() { const s=document.getElementById('ai-card-search').value.toLowerCase(), g=document.getElementById('ai-picker-grid'); g.innerHTML=''; ALL_CARDS.filter(c=>c.name.toLowerCase().includes(s)).slice(0,60).forEach(c=>{ const sel=AI_SELECTED.some(x=>x.id===c.id); g.innerHTML+=`<div onclick="${sel?'':`toggleAI(${c.id})`}" class="${sel?'opacity-30':'hover:border-blue-500'} bg-[#1e293b] rounded-xl p-1 border-2 border-[#334155] cursor-pointer transition flex items-center justify-center overflow-hidden shadow-sm aspect-[3/4]"><img src="${getCardImage(c)}" class="h-full w-auto object-contain drop-shadow-md" onerror="handleImgError(this)"></div>` }); }
+        function toggleAI(id){ const c=ALL_CARDS.find(x=>x.id===id)||MOCK_CARDS_DATA.find(x=>x.id===id); if(AI_SELECTED.some(x=>x.id===id)) AI_SELECTED=AI_SELECTED.filter(x=>x.id!==id); else if(AI_SELECTED.length<8) AI_SELECTED.push(c); updateAI(); }
+        function updateAI(){ const s=document.getElementById('ai-slots'); s.innerHTML=''; document.getElementById('ai-count').innerText=AI_SELECTED.length; AI_SELECTED.forEach(c=>s.innerHTML+=`<div onclick="toggleAI(${c.id})" class="w-14 h-18 bg-[#1e293b] rounded-xl border-2 border-[#334155] relative cursor-pointer hover:border-red-500 group flex items-center justify-center overflow-hidden shadow-md aspect-[3/4]"><img src="${getCardImage(c)}" class="h-full w-auto object-contain drop-shadow-sm"><div class="absolute inset-0 bg-red-500/50 hidden group-hover:flex items-center justify-center rounded-xl"><i class="fas fa-times text-white text-xl"></i></div></div>`); for(let i=AI_SELECTED.length;i<8;i++) s.innerHTML+=`<div class="w-14 h-18 bg-[#0f172a]/50 rounded-xl border-2 border-dashed border-[#334155] flex items-center justify-center text-slate-600 text-lg font-black animate-pulse aspect-[3/4]">${i+1}</div>`; const btn=document.getElementById('ai-btn'); if(AI_SELECTED.length===8){ btn.disabled=false; btn.classList.remove('bg-[#334155]','border-[#1e293b]','text-slate-500','cursor-not-allowed'); btn.classList.add('bg-gradient-to-r','from-purple-600','to-pink-600','border-purple-800','text-white','shadow-lg','animate-bounce-in'); } else { btn.disabled=true; btn.classList.add('bg-[#334155]','border-[#1e293b]','text-slate-500','cursor-not-allowed'); btn.classList.remove('bg-gradient-to-r','from-purple-600','to-pink-600','border-purple-800','text-white','shadow-lg','animate-bounce-in'); } renderAIPicker(); }
+        function analyzeDeck(){ document.getElementById('ai-btn').innerHTML='<i class="fas fa-spinner fa-spin"></i> MEMPROSES...'; setTimeout(()=>{ const avg=(AI_SELECTED.reduce((a,b)=>a+b.elixirCost,0)/8).toFixed(1), winC=AI_SELECTED.some(c=>['Hog','Giant','Golem','Miner','Barrel','Balloon','Royal Giant','X-Bow','Mortar'].some(w=>c.name.includes(w))); document.getElementById('ai-strength').innerText = winC ? "Win Condition Terdeteksi. Potensi serangan baik." : "Tidak ada Win Condition yang jelas. Sulit menghancurkan tower."; document.getElementById('ai-weakness').innerText = avg > 4.0 ? "Deck Sangat Berat ("+avg+"). Hati-hati terhadap deck cycle cepat." : (avg < 3.0 ? "Deck Sangat Ringan ("+avg+"). Pertahanan mungkin lemah terhadap beatdown." : "Rotasi Elixir Seimbang ("+avg+"). Cukup fleksibel."); document.getElementById('ai-advice').innerText = winC ? "\"Fokus pada melindungi Win Condition Anda dan manfaatkan serangan balik!\"" : "\"Tambahkan setidaknya satu kartu penyerang bangunan (Win Condition) agar deck lebih efektif!\""; document.getElementById('ai-result').classList.remove('hidden'); document.getElementById('ai-btn').innerHTML='<i class="fas fa-check"></i> SELESAI'; },1500); }
+        function resetAI(){ AI_SELECTED=[]; updateAI(); document.getElementById('ai-result').classList.add('hidden'); document.getElementById('ai-btn').innerHTML='<i class="fas fa-lock mr-2"></i> KUNCI DECK'; }
+        window.handleImgError = function(img) { img.style.display='none'; }
+    </script>
+</body>
+</html>
